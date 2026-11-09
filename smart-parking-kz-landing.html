@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Parking KZ — автоматизация парковок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#0F1115; --surface:#171A21; --surface-2:#1E222B;
+    --line:#2B303B; --text:#E8E9EC; --muted:#8B909C;
+    --amber:#FFB020; --amber-dim:#B67E1A; --steel:#5A8FB8; --teal:#3FB6A8;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#0F1115; } }
+  :root[data-theme="dark"]{ --bg:#0F1115; }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
+  h1,h2,h3,.font-display{ font-family:'Space Grotesk',sans-serif; }
+  .stripe{
+    background-image: repeating-linear-gradient(135deg, var(--amber) 0 14px, #0F1115 14px 28px);
+    height:6px;
+  }
+  .ticket{
+    background:var(--surface); border:1px solid var(--line);
+    position:relative;
+  }
+  .ticket::before, .ticket::after{
+    content:""; position:absolute; width:18px; height:18px; background:var(--bg);
+    border-radius:50%; top:50%; transform:translateY(-50%);
+  }
+  .ticket::before{ left:-9px; } .ticket::after{ right:-9px; }
+  .dashed{ border-left:2px dashed var(--line); }
+  .track-line{ background:linear-gradient(90deg, transparent, var(--line) 10%, var(--line) 90%, transparent); height:2px; }
+  ::selection{ background:var(--amber); color:#0F1115; }
+  input:focus, textarea:focus{ outline:2px solid var(--amber); outline-offset:2px; }
+  .num-anim{ transition: none; }
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- NAV -->
+<header class="sticky top-0 z-40 backdrop-blur border-b" style="background:rgba(15,17,21,0.85); border-color:var(--line);">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded flex items-center justify-center font-display font-bold text-sm" style="background:var(--amber); color:#0F1115;">SP</div>
+      <span class="font-display font-semibold tracking-tight">Smart Parking <span style="color:var(--amber)">KZ</span></span>
+    </div>
+    <nav class="hidden md:flex gap-8 text-sm" style="color:var(--muted)">
+      <a href="#problem" class="hover:text-white transition-colors">Почему сейчас</a>
+      <a href="#how" class="hover:text-white transition-colors">Как это работает</a>
+      <a href="#pricing" class="hover:text-white transition-colors">Тарифы</a>
+      <a href="#contact" class="hover:text-white transition-colors">Заявка</a>
+    </nav>
+    <a href="#contact" class="hidden sm:block text-sm font-medium px-4 py-2 rounded" style="background:var(--amber); color:#0F1115;">Запросить демо</a>
+  </div>
+  <div class="stripe"></div>
+</header>
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto px-6 pt-16 pb-20 grid lg:grid-cols-5 gap-12 items-center">
+  <div class="lg:col-span-3">
+    <p class="text-sm mb-4" style="color:var(--amber)">Умные парковки для Казахстана</p>
+    <h1 class="font-display text-4xl sm:text-5xl font-semibold leading-tight tracking-tight">
+      Полная автоматизация и контроль вашей парковки
+    </h1>
+    <p class="mt-6 text-lg max-w-xl" style="color:var(--muted)">
+      Превратите парковку из источника хаоса в управляемый бизнес. Рост выручки, аналитика загрузки в реальном времени и приём оплаты через Kaspi.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4">
+      <a href="#contact" class="px-6 py-3 rounded font-medium text-sm" style="background:var(--amber); color:#0F1115;">Запросить демо</a>
+      <a href="#pricing" class="px-6 py-3 rounded font-medium text-sm border" style="border-color:var(--line); color:var(--text);">Рассчитать стоимость</a>
+    </div>
+  </div>
+
+  <div class="lg:col-span-2 ticket p-6">
+    <p class="text-xs mb-6" style="color:var(--muted)">результаты внедрения</p>
+    <div class="space-y-5">
+      <div class="flex items-end justify-between border-b pb-4" style="border-color:var(--line)">
+        <span class="font-display text-3xl font-semibold" style="color:var(--amber)" data-count="30" data-suffix="%">0%</span>
+        <span class="text-sm text-right max-w-[9rem]" style="color:var(--muted)">к выручке паркинга</span>
+      </div>
+      <div class="flex items-end justify-between border-b pb-4" style="border-color:var(--line)">
+        <span class="font-display text-3xl font-semibold" style="color:var(--teal)">0 мин</span>
+        <span class="text-sm text-right max-w-[9rem]" style="color:var(--muted)">на поиск свободного места</span>
+      </div>
+      <div class="flex items-end justify-between">
+        <span class="font-display text-3xl font-semibold" style="color:var(--steel)" data-count="100" data-suffix="%">0%</span>
+        <span class="text-sm text-right max-w-[9rem]" style="color:var(--muted)">контроль заездов и выездов</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stripe"></div>
+
+<!-- PROBLEM / SOLUTION -->
+<section id="problem" class="max-w-6xl mx-auto px-6 py-20">
+  <h2 class="font-display text-3xl font-semibold mb-2">Пока вы считаете шлагбаумы вручную, конкуренты считают выручку</h2>
+  <p style="color:var(--muted)" class="max-w-2xl mb-12">Большинство парковок в ТРЦ, БЦ и ЖК Казахстана до сих пор работают так же, как 15 лет назад.</p>
+
+  <div class="grid md:grid-cols-2 gap-px" style="background:var(--line)">
+    <div class="p-8" style="background:var(--bg)">
+      <p class="text-xs mb-4" style="color:var(--muted)">Обычная парковка</p>
+      <ul class="space-y-4 text-sm">
+        <li class="flex gap-3"><span style="color:var(--muted)">—</span> Пробки на въезде в часы пик</li>
+        <li class="flex gap-3"><span style="color:var(--muted)">—</span> Расчёт наличными, риск потерь</li>
+        <li class="flex gap-3"><span style="color:var(--muted)">—</span> Нет данных о загрузке и выручке</li>
+        <li class="flex gap-3"><span style="color:var(--muted)">—</span> Ошибки и споры на выезде</li>
+      </ul>
+    </div>
+    <div class="p-8" style="background:var(--surface)">
+      <p class="text-xs mb-4" style="color:var(--amber)">Smart Parking KZ</p>
+      <ul class="space-y-4 text-sm">
+        <li class="flex gap-3"><span style="color:var(--amber)">＋</span> Датчики и камеры распознают номер за секунды</li>
+        <li class="flex gap-3"><span style="color:var(--amber)">＋</span> Автоматический расчёт и оплата без наличных</li>
+        <li class="flex gap-3"><span style="color:var(--amber)">＋</span> Аналитика загрузки и выручки в реальном времени</li>
+        <li class="flex gap-3"><span style="color:var(--amber)">＋</span> Прозрачный журнал каждого заезда</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="max-w-6xl mx-auto px-6 py-20 border-t" style="border-color:var(--line)">
+  <h2 class="font-display text-3xl font-semibold mb-12">Как это работает</h2>
+  <div class="grid md:grid-cols-4 gap-8 relative">
+    <div class="hidden md:block absolute top-5 left-0 right-0 track-line"></div>
+    <div>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-display relative z-10" style="background:var(--bg); border:2px solid var(--amber); color:var(--amber)">1</div>
+      <h3 class="font-display font-medium mt-4 mb-1">Заезд автомобиля</h3>
+      <p class="text-sm" style="color:var(--muted)">Шлагбаум открывается автоматически по распознаванию номера.</p>
+    </div>
+    <div>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-display relative z-10" style="background:var(--bg); border:2px solid var(--amber); color:var(--amber)">2</div>
+      <h3 class="font-display font-medium mt-4 mb-1">Поиск места</h3>
+      <p class="text-sm" style="color:var(--muted)">Датчики и камеры показывают свободные места на табло и в приложении.</p>
+    </div>
+    <div>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-display relative z-10" style="background:var(--bg); border:2px solid var(--amber); color:var(--amber)">3</div>
+      <h3 class="font-display font-medium mt-4 mb-1">Авторасчёт</h3>
+      <p class="text-sm" style="color:var(--muted)">Система сама считает время и стоимость по вашему тарифу.</p>
+    </div>
+    <div>
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-display relative z-10" style="background:var(--bg); border:2px solid var(--amber); color:var(--amber)">4</div>
+      <h3 class="font-display font-medium mt-4 mb-1">Оплата</h3>
+      <p class="text-sm" style="color:var(--muted)">Kaspi, QR или банковская карта прямо на выезде.</p>
+    </div>
+  </div>
+</section>
+
+<div class="stripe"></div>
+
+<!-- PRICING -->
+<section id="pricing" class="max-w-6xl mx-auto px-6 py-20">
+  <h2 class="font-display text-3xl font-semibold mb-2">Тарифы</h2>
+  <p style="color:var(--muted)" class="mb-12">Установка и ежемесячное обслуживание. Точную стоимость рассчитаем под ваш объект.</p>
+
+  <div class="grid md:grid-cols-3 gap-10">
+    <div class="ticket p-6 flex flex-col">
+      <p class="text-xs" style="color:var(--muted)">ЖК / малый паркинг · до 30 мест</p>
+      <h3 class="font-display text-xl font-semibold mt-1">Старт</h3>
+      <div class="dashed pl-4 my-5">
+        <p class="text-2xl font-display font-semibold">от 950 000 ₸</p>
+        <p class="text-xs" style="color:var(--muted)">единоразовая установка</p>
+        <p class="text-sm mt-2" style="color:var(--amber)">от 25 000 ₸ / мес обслуживание</p>
+      </div>
+      <ul class="text-sm space-y-2 flex-1" style="color:var(--muted)">
+        <li>Распознавание номеров</li>
+        <li>Оплата через Kaspi QR</li>
+        <li>Базовая аналитика</li>
+      </ul>
+      <a href="#contact" class="mt-6 text-center text-sm font-medium px-4 py-2 rounded border" style="border-color:var(--line)">Выбрать тариф</a>
+    </div>
+
+    <div class="ticket p-6 flex flex-col" style="border-color:var(--amber)">
+      <p class="text-xs" style="color:var(--amber)">БЦ / отели · до 100 мест</p>
+      <h3 class="font-display text-xl font-semibold mt-1">Бизнес</h3>
+      <div class="dashed pl-4 my-5">
+        <p class="text-2xl font-display font-semibold">от 2 400 000 ₸</p>
+        <p class="text-xs" style="color:var(--muted)">единоразовая установка</p>
+        <p class="text-sm mt-2" style="color:var(--amber)">от 60 000 ₸ / мес обслуживание</p>
+      </div>
+      <ul class="text-sm space-y-2 flex-1" style="color:var(--muted)">
+        <li>Всё из тарифа «Старт»</li>
+        <li>Камеры на все въезды/выезды</li>
+        <li>Резервирование мест для арендаторов</li>
+        <li>Отчёты по загрузке в реальном времени</li>
+      </ul>
+      <a href="#contact" class="mt-6 text-center text-sm font-medium px-4 py-2 rounded" style="background:var(--amber); color:#0F1115;">Выбрать тариф</a>
+    </div>
+
+    <div class="ticket p-6 flex flex-col">
+      <p class="text-xs" style="color:var(--muted)">ТРЦ / крупные объекты · 100+ мест</p>
+      <h3 class="font-display text-xl font-semibold mt-1">Enterprise</h3>
+      <div class="dashed pl-4 my-5">
+        <p class="text-2xl font-display font-semibold">индивидуально</p>
+        <p class="text-xs" style="color:var(--muted)">от 5 000 000 ₸, по объекту</p>
+        <p class="text-sm mt-2" style="color:var(--amber)">обслуживание по договору</p>
+      </div>
+      <ul class="text-sm space-y-2 flex-1" style="color:var(--muted)">
+        <li>Всё из тарифа «Бизнес»</li>
+        <li>Интеграция с системами ТРЦ</li>
+        <li>Многоуровневые паркинги</li>
+        <li>Персональный менеджер</li>
+      </ul>
+      <a href="#contact" class="mt-6 text-center text-sm font-medium px-4 py-2 rounded border" style="border-color:var(--line)">Обсудить проект</a>
+    </div>
+  </div>
+</section>
+
+<div class="stripe"></div>
+
+<!-- CONTACT FORM -->
+<section id="contact" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="grid lg:grid-cols-5 gap-12">
+    <div class="lg:col-span-2">
+      <h2 class="font-display text-3xl font-semibold mb-4">Запросите демо</h2>
+      <p style="color:var(--muted)">Оставьте заявку — рассчитаем стоимость под ваш объект и покажем систему в работе за 20 минут.</p>
+    </div>
+    <div class="lg:col-span-3">
+      <form id="lead-form" class="grid sm:grid-cols-2 gap-5">
+        <div class="sm:col-span-1">
+          <label class="text-xs" style="color:var(--muted)">Имя</label>
+          <input required type="text" class="w-full mt-1 px-4 py-3 rounded bg-transparent border text-sm" style="border-color:var(--line)">
+        </div>
+        <div class="sm:col-span-1">
+          <label class="text-xs" style="color:var(--muted)">Телефон</label>
+          <input required type="tel" placeholder="+7 7__ ___ __ __" class="w-full mt-1 px-4 py-3 rounded bg-transparent border text-sm" style="border-color:var(--line)">
+        </div>
+        <div class="sm:col-span-1">
+          <label class="text-xs" style="color:var(--muted)">Название компании / объекта</label>
+          <input required type="text" class="w-full mt-1 px-4 py-3 rounded bg-transparent border text-sm" style="border-color:var(--line)">
+        </div>
+        <div class="sm:col-span-1">
+          <label class="text-xs" style="color:var(--muted)">Количество парковочных мест</label>
+          <input required type="number" min="1" class="w-full mt-1 px-4 py-3 rounded bg-transparent border text-sm" style="border-color:var(--line)">
+        </div>
+        <button type="submit" class="sm:col-span-2 mt-2 px-6 py-3 rounded font-medium text-sm" style="background:var(--amber); color:#0F1115;">Отправить заявку</button>
+      </form>
+      <div id="lead-success" class="hidden ticket p-6">
+        <p class="font-display text-lg font-medium" style="color:var(--amber)">Заявка принята</p>
+        <p class="text-sm mt-2" style="color:var(--muted)">Свяжемся с вами в течение рабочего дня, чтобы согласовать демонстрацию.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t py-10 text-sm" style="border-color:var(--line); color:var(--muted)">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between gap-4">
+    <span>Smart Parking KZ · Республика Казахстан</span>
+    <span>hello@smartparking.kz</span>
+  </div>
+</footer>
+
+<script>
+  // Count-up animation for hero stats — single orchestrated reveal
+  const counters = document.querySelectorAll('[data-count]');
+  const animate = (el) => {
+    const target = parseInt(el.dataset.count, 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = 900;
+    const start = performance.now();
+    function step(now){
+      const p = Math.min((now - start) / duration, 1);
+      const val = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      el.textContent = val + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ animate(e.target); io.unobserve(e.target); } });
+  }, { threshold: 0.6 });
+  counters.forEach(c => io.observe(c));
+
+  // Lead form
+  const form = document.getElementById('lead-form');
+  const success = document.getElementById('lead-success');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.classList.add('hidden');
+    success.classList.remove('hidden');
+  });
+</script>
+</body>
+</html>
